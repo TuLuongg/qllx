@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 
 const columns = [
+  "Tên lái xe",
+  "Biển số xe",
   "Tên khách hàng",
   "Giấy tờ",
   "Nơi đi",
@@ -13,8 +15,10 @@ const columns = [
   "Tăng ca",
   "Bốc xếp",
   "Vé",
-  "Tiền chuyển",
+  "Tiền chuyến",
   "Chi phí khác",
+  "Ghi chú",
+  "Ngày", // thêm cột ngày
 ];
 
 function App() {
@@ -45,14 +49,40 @@ function App() {
   const handleSubmit = async () => {
     try {
       for (let row of rows) {
-        await axios.post("http://localhost:5000/api/schedules", {
-          fields: row.values,
+        const fields = row.values.slice(0, 16); // các trường dữ liệu
+        const ngayThangNam = row.values[16]; // trường ngày
+
+        await axios.post("https://qllx.onrender.com/api/schedules", {
+          fields,
+          ngayThangNam,
         });
       }
       alert("Dữ liệu đã được gửi lên!");
     } catch (error) {
       console.error(error);
       alert("Có lỗi xảy ra khi gửi dữ liệu.");
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const response = await axios.get(
+        "https://qllx.onrender.com/api/schedules/export", // sửa URL ở đây
+        {
+          responseType: "blob", // để nhận file dưới dạng nhị phân
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "lich_trinh.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Lỗi khi tải file Excel:", error);
+      alert("Không thể tải file Excel.");
     }
   };
 
@@ -75,7 +105,7 @@ function App() {
               {row.values.map((val, i) => (
                 <td key={i} className="border p-1">
                   <input
-                    type="text"
+                    type={i === 16 ? "date" : "text"} // cột cuối là ngày thì dùng input date
                     value={val}
                     onChange={(e) =>
                       handleInputChange(row.id, i, e.target.value)
@@ -100,6 +130,12 @@ function App() {
           className="bg-gray-500 text-white px-4 py-2 rounded"
         >
           Gửi dữ liệu
+        </button>
+        <button
+          onClick={handleExport}
+          className="bg-green-500 text-white px-4 py-2 rounded"
+        >
+          Tải Excel
         </button>
       </div>
     </div>
