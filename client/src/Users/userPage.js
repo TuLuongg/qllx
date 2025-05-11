@@ -107,9 +107,9 @@ function UserPage() {
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="mb-6 flex flex-wrap gap-4">
         {/* Ngày đi */}
-        <div>
+        <div className="flex-1 min-w-[150px]">
           <label className="block mb-1 font-semibold">Ngày đi:</label>
           <input
             type="date"
@@ -120,7 +120,7 @@ function UserPage() {
         </div>
 
         {/* Ngày về */}
-        <div>
+        <div className="flex-1 min-w-[150px]">
           <label className="block mb-1 font-semibold">Ngày về:</label>
           <input
             type="date"
