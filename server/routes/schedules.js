@@ -5,90 +5,168 @@ const XLSX = require("xlsx");
 const fs = require("fs");
 const path = require("path");
 
-// Hàm chuyển mảng fields thành object khớp schema
-const mapFieldsToSchema = (fields, ngayThangNam) => {
+// Chuyển tất cả fields về String
+const mapFieldsToRow = (fields) => {
   return {
-    tenLaiXe: fields[0],
-    bienSoXe: fields[1],
-    tenKhachHang: fields[2],
-    giayTo: fields[3],
-    noiDi: fields[4],
-    noiDen: fields[5],
-    trongLuongHang: Number(fields[6]) || 0,
-    soDiem: Number(fields[7]) || 0,
-    haiChieuVaLuuCa: fields[8],
-    an: Number(fields[9]) || 0,
-    tangCa: Number(fields[10]) || 0,
-    bocXep: Number(fields[11]) || 0,
-    ve: Number(fields[12]) || 0,
-    tienChuyen: Number(fields[13]) || 0,
-    chiPhiKhac: Number(fields[14]) || 0,
-    ghiChu: fields[15] || "",
-    ngayThangNam: new Date(ngayThangNam),
+    bienSoXe: String(fields[0] || ""),
+    tenKhachHang: String(fields[1] || ""),
+    giayTo: String(fields[2] || ""),
+    noiDi: String(fields[3] || ""),
+    noiDen: String(fields[4] || ""),
+    trongLuongHang: String(fields[5] || ""),
+    soDiem: String(fields[6] || ""),
+    haiChieuVaLuuCa: String(fields[7] || ""),
+    an: String(fields[8] || ""),
+    tangCa: String(fields[9] || ""),
+    bocXep: String(fields[10] || ""),
+    ve: String(fields[11] || ""),
+    tienChuyen: String(fields[12] || ""),
+    chiPhiKhac: String(fields[13] || ""),
+    laiXeThuKhach: String(rowObj.laiXeThuKhach || ""),
   };
 };
 
-// Tạo mới lịch trình
+// Tạo lịch trình mới
 router.post("/", async (req, res) => {
   try {
-    const { fields, ngayThangNam } = req.body;
-    const data = mapFieldsToSchema(fields, ngayThangNam);
-    const schedule = new Schedule(data);
+    const {
+      tenLaiXe,
+      ngayThangNam,
+      tongTienLichTrinh,
+      laiXeThuKhach,
+      phuongAn,
+      rows,
+    } = req.body;
+
+    const processedRows = rows.map(mapFieldsToRow);
+
+    const schedule = new Schedule({
+      tenLaiXe: String(tenLaiXe || ""),
+      ngayThangNam: new Date(ngayThangNam),
+      tongTienLichTrinh: String(tongTienLichTrinh || ""),
+      laiXeThuKhach: String(laiXeThuKhach || ""),
+      phuongAn: String(phuongAn || ""),
+      rows: processedRows,
+    });
+
     await schedule.save();
     res.status(201).json(schedule);
   } catch (err) {
+    console.error("Lỗi tạo lịch trình:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Lấy tất cả lịch trình
+// Lấy toàn bộ lịch trình hoặc lọc theo ngày
 router.get("/", async (req, res) => {
   try {
-    const schedules = await Schedule.find();
+    let query = {};
+
+    if (req.query.ngay) {
+      const start = new Date(req.query.ngay);
+      const end = new Date(req.query.ngay);
+      end.setDate(end.getDate() + 1);
+
+      query.ngayThangNam = { $gte: start, $lt: end };
+    }
+
+    const schedules = await Schedule.find(query);
     res.json(schedules);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ Xuất Excel
+// Xuất Excel
 router.get("/export", async (req, res) => {
   try {
+    let query = {};
+
+    if (req.query.ngay) {
+      const start = new Date(req.query.ngay);
+      const end = new Date(req.query.ngay);
+      end.setDate(end.getDate() + 1);
+
+      query.ngayThangNam = { $gte: start, $lt: end };
+    }
     const schedules = await Schedule.find();
 
-    const data = schedules.map((s) => ({
-      "Tên lái xe": s.tenLaiXe,
-      "Biển số xe": s.bienSoXe,
-      "Tên khách hàng": s.tenKhachHang,
-      "Giấy tờ": s.giayTo,
-      "Nơi đi": s.noiDi,
-      "Nơi đến": s.noiDen,
-      "Trọng lượng hàng": s.trongLuongHang,
-      "Số điểm": s.soDiem,
-      "2 chiều & Lưu ca": s.haiChieuVaLuuCa,
-      Ăn: s.an,
-      "Tăng ca": s.tangCa,
-      "Bốc xếp": s.bocXep,
-      Vé: s.ve,
-      "Tiền chuyến": s.tienChuyen,
-      "Chi phí khác": s.chiPhiKhac,
-      "Ghi chú": s.ghiChu,
-      Ngày: s.ngayThangNam.toLocaleDateString("vi-VN"),
-    }));
+    const data = [];
 
+    schedules.forEach((s) => {
+      let isFirstRow = true;
+
+      s.rows.forEach((row) => {
+        data.push({
+          Ngày: isFirstRow ? s.ngayThangNam.toLocaleDateString("vi-VN") : "",
+          "Tên lái xe": isFirstRow ? s.tenLaiXe : "",
+          "Biển số xe": row.bienSoXe,
+          "Tên khách hàng": row.tenKhachHang,
+          "Giấy tờ": row.giayTo,
+          "Nơi đi": row.noiDi,
+          "Nơi đến": row.noiDen,
+          "Trọng lượng hàng": row.trongLuongHang,
+          "Số điểm": row.soDiem,
+          "2 chiều & Lưu ca": row.haiChieuVaLuuCa,
+          Ăn: row.an,
+          "Tăng ca": row.tangCa,
+          "Bốc xếp": row.bocXep,
+          Vé: row.ve,
+          "Tiền chuyến": row.tienChuyen,
+          "Chi phí khác": row.chiPhiKhac,
+          "Tổng tiền lịch trình": "",
+          "Lái xe thu khách": row.laiXeThuKhach,
+          "Phương án": "",
+        });
+        isFirstRow = false;
+      });
+
+      // Dòng tổng kết cuối cùng cho từng lịch trình
+      data.push({
+        Ngày: "",
+        "Tên lái xe": "",
+        "Biển số xe": "",
+        "Tên khách hàng": "",
+        "Giấy tờ": "",
+        "Nơi đi": "",
+        "Nơi đến": "",
+        "Trọng lượng hàng": "",
+        "Số điểm": "",
+        "2 chiều & Lưu ca": "",
+        Ăn: "",
+        "Tăng ca": "",
+        "Bốc xếp": "",
+        Vé: "",
+        "Tiền chuyến": "",
+        "Chi phí khác": "",
+        "Tổng tiền lịch trình": s.tongTienLichTrinh || "",
+        "Lái xe thu khách": s.laiXeThuKhach || "",
+        "Phương án":
+          s.phuongAn === "daChuyenKhoan"
+            ? "Đã chuyển khoản"
+            : "Trừ vào tiền tổng",
+      });
+
+      // Dòng trắng ngăn cách
+      data.push({});
+    });
+
+    // Chuyển dữ liệu sang Excel
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Lịch Trình");
 
+    // Ghi ra file tạm
     const filePath = path.join(__dirname, "../lich_trinh.xlsx");
     XLSX.writeFile(workbook, filePath);
 
+    // Gửi file
     res.download(filePath, "lich_trinh.xlsx", (err) => {
       if (err) {
         console.error("Lỗi gửi file:", err);
         res.status(500).send("Lỗi gửi file");
       } else {
-        fs.unlinkSync(filePath); // Xóa sau khi gửi
+        fs.unlinkSync(filePath);
       }
     });
   } catch (err) {
