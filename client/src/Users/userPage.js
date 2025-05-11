@@ -12,7 +12,7 @@ const columns = [
   "Số điểm",
   "2 chiều & lưu ca (Ghi rõ số lượng hàng trả về)",
   "Ăn",
-  "Tăng ca (Ghi rõ giờ đi - về)",
+  "Tăng ca(Ghi giờ đi-về)",
   "Bốc xếp",
   "Vé",
   "Tiền chuyến (2+3+4+5 nếu có)",
@@ -105,7 +105,9 @@ function UserPage() {
             onChange={(e) => handleDriverInfoChange("tenLaiXe", e.target.value)}
           />
         </div>
+      </div>
 
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {/* Ngày đi */}
         <div>
           <label className="block mb-1 font-semibold">Ngày đi:</label>
@@ -138,19 +140,28 @@ function UserPage() {
           <label className="block font-medium">Chuyến {index + 1}:</label>
           {/* Các input thông tin chuyến */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 flex-1">
-            {columns.map((col, i) => (
-              <div key={i} className="flex items-center gap-2 w-full">
-                <label className="text-sm font-medium w-[160px] shrink-0">
-                  {col}:
-                </label>
-                <input
-                  type="text"
-                  value={row.values[i]}
-                  onChange={(e) => handleInputChange(row.id, i, e.target.value)}
-                  className="border border-gray-300 rounded px-2 py-1 w-full"
-                />
-              </div>
-            ))}
+            {columns.map((col, i) => {
+              // Ẩn cột 9 ("Ăn") và 10 ("Tăng ca") từ chuyến thứ 2 trở đi
+              if (index > 0 && (i === 8 || i === 9)) {
+                return null;
+              }
+
+              return (
+                <div key={i} className="flex items-center gap-2 w-full">
+                  <label className="text-sm font-medium w-[160px] shrink-0">
+                    {col}:
+                  </label>
+                  <input
+                    type="text"
+                    value={row.values[i]}
+                    onChange={(e) =>
+                      handleInputChange(row.id, i, e.target.value)
+                    }
+                    className="border border-gray-300 rounded px-2 py-1 w-full"
+                  />
+                </div>
+              );
+            })}
           </div>
 
           {/* Phần phương án + lái xe thu khách */}
