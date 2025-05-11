@@ -139,8 +139,10 @@ function UserPage() {
           {/* Các input thông tin chuyến */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 flex-1">
             {columns.map((col, i) => (
-              <div key={i}>
-                <label className="block text-sm font-medium">{col}</label>
+              <div key={i} className="flex items-center gap-2 w-full">
+                <label className="text-sm font-medium w-[160px] shrink-0">
+                  {col}:
+                </label>
                 <input
                   type="text"
                   value={row.values[i]}
