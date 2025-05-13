@@ -25,7 +25,7 @@ const AdminPage = () => {
 
       // Gửi tham số ngày vào API export
       const response = await axios.get(
-        "http://localhost:4000/api/schedules/export",
+        "https://qllx.onrender.com/api/schedules/export",
         {
           params: { ngay: formattedDate }, // Truyền ngày vào query
           responseType: "blob", // Đảm bảo là nhận blob để tải file
@@ -57,7 +57,7 @@ const AdminPage = () => {
     try {
       const formattedDate = new Date(selectedDate).toISOString().split("T")[0]; // Chuyển ngày sang định dạng YYYY-MM-DD
       const response = await axios.get(
-        `http://localhost:4000/api/schedules?ngay=${formattedDate}`
+        `https://qllx.onrender.com/api/schedules?ngay=${formattedDate}`
       );
       setFilteredData(response.data);
       console.log(response);
@@ -78,7 +78,7 @@ const AdminPage = () => {
     try {
       const formattedDate = new Date(selectedDate).toISOString().split("T")[0]; // Chuyển ngày sang định dạng YYYY-MM-DD
       await axios.delete(
-        `http://localhost:4000/api/schedules?ngay=${formattedDate}`
+        `https://qllx.onrender.com/api/schedules?ngay=${formattedDate}`
       );
       alert("Đã xóa thành công!");
       setFilteredData([]);
