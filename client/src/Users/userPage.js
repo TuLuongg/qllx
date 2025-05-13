@@ -114,7 +114,7 @@ function UserPage() {
 
       <div className="mb-6 flex flex-wrap gap-4">
         {/* Ngày đi */}
-        <div className="flex-1 min-w-[150px]">
+        <div className="flex-1 min-w-[120px]">
           <label className="block mb-1 font-semibold">Ngày đi:</label>
           <input
             type="datetime-local"
@@ -125,7 +125,7 @@ function UserPage() {
         </div>
 
         {/* Ngày về */}
-        <div className="flex-1 min-w-[150px]">
+        <div className="flex-1 min-w-[120px]">
           <label className="block mb-1 font-semibold">Ngày về:</label>
           <input
             type="datetime-local"
