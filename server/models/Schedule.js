@@ -16,14 +16,14 @@ const rowSchema = new mongoose.Schema({
   tienChuyen: String,
   chiPhiKhac: String,
   laiXeThuKhach: String,
+  phuongAn: String,
 });
 
 const scheduleSchema = new mongoose.Schema({
   tenLaiXe: String,
-  ngayThangNam: Date,
+  ngayDi: Date,
+  ngayVe: Date,
   tongTienLichTrinh: String,
-  laiXeThuKhach: String,
-  phuongAn: String,
   rows: [rowSchema], // Mảng các row, mỗi row chứa thông tin của một chuyến
 });
 

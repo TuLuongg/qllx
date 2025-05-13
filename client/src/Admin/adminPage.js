@@ -16,17 +16,32 @@ const AdminPage = () => {
   };
 
   const handleExport = async () => {
+    if (!selectedDate) {
+      return alert("Vui lòng chọn ngày.");
+    }
+
     try {
+      const formattedDate = new Date(selectedDate).toISOString().split("T")[0]; // Chuyển ngày sang định dạng YYYY-MM-DD
+
+      // Gửi tham số ngày vào API export
       const response = await axios.get(
         "http://localhost:4000/api/schedules/export",
         {
-          responseType: "blob",
+          params: { ngay: formattedDate }, // Truyền ngày vào query
+          responseType: "blob", // Đảm bảo là nhận blob để tải file
         }
       );
+
+      // Tạo link tải file Excel
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "lich_trinh.xlsx");
+
+      const [year, month, day] = formattedDate.split("-");
+      const safeNgayString = `${day}_${month}_${year}`;
+
+      const fileName = `lichtrinh_${safeNgayString}.xlsx`;
+      link.setAttribute("download", fileName);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -40,10 +55,12 @@ const AdminPage = () => {
     if (!selectedDate) return alert("Vui lòng chọn ngày.");
 
     try {
+      const formattedDate = new Date(selectedDate).toISOString().split("T")[0]; // Chuyển ngày sang định dạng YYYY-MM-DD
       const response = await axios.get(
-        `http://localhost:4000/api/schedules?ngay=${selectedDate}`
+        `http://localhost:4000/api/schedules?ngay=${formattedDate}`
       );
       setFilteredData(response.data);
+      console.log(response);
     } catch (err) {
       console.error("Lỗi khi lọc dữ liệu:", err);
       alert("Không thể lấy dữ liệu theo ngày.");
@@ -59,8 +76,9 @@ const AdminPage = () => {
       return;
 
     try {
+      const formattedDate = new Date(selectedDate).toISOString().split("T")[0]; // Chuyển ngày sang định dạng YYYY-MM-DD
       await axios.delete(
-        `http://localhost:4000/api/schedules?ngay=${selectedDate}`
+        `http://localhost:4000/api/schedules?ngay=${formattedDate}`
       );
       alert("Đã xóa thành công!");
       setFilteredData([]);
@@ -128,9 +146,8 @@ const AdminPage = () => {
           <thead className="bg-gray-200">
             <tr>
               <th className="border p-1">Tên lái xe</th>
-              <th className="border p-1">Ngày</th>
-              <th className="border p-1">Tổng tiền</th>
-              <th className="border p-1">Thu khách</th>
+              <th className="border p-1">Ngày đi</th>
+              <th className="border p-1">Tổng tiền lịch trình</th>
             </tr>
           </thead>
           <tbody>
@@ -138,10 +155,9 @@ const AdminPage = () => {
               <tr key={item._id}>
                 <td className="border p-1">{item.tenLaiXe}</td>
                 <td className="border p-1">
-                  {new Date(item.ngayThangNam).toLocaleDateString("vi-VN")}
+                  {new Date(item.ngayDi).toLocaleDateString("vi-VN")}
                 </td>
                 <td className="border p-1">{item.tongTienLichTrinh}</td>
-                <td className="border p-1">{item.laiXeThuKhach}</td>
               </tr>
             ))}
           </tbody>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import maQR from "../images/maQR.jpeg";
+import { useNavigate } from "react-router-dom";
 
 const columns = [
   "Biển số xe",
@@ -20,6 +21,8 @@ const columns = [
 ];
 
 function UserPage() {
+  const navigate = useNavigate();
+
   const [rows, setRows] = useState([
     { id: Date.now(), values: Array(columns.length).fill("") },
   ]);
@@ -82,6 +85,8 @@ function UserPage() {
       console.log("Dữ liệu gửi đi:", payload);
       await axios.post("http://localhost:4000/api/schedules", payload);
       alert("Dữ liệu đã được gửi lên!");
+
+      navigate("/final", { state: payload });
     } catch (error) {
       console.error("Có lỗi xảy ra khi gửi dữ liệu:", error);
       alert("Có lỗi xảy ra khi gửi dữ liệu.");
@@ -112,7 +117,7 @@ function UserPage() {
         <div className="flex-1 min-w-[150px]">
           <label className="block mb-1 font-semibold">Ngày đi:</label>
           <input
-            type="date"
+            type="datetime-local"
             className="border border-gray-400 rounded px-2 py-1 w-full"
             value={driverInfo.ngayDi}
             onChange={(e) => handleDriverInfoChange("ngayDi", e.target.value)}
@@ -123,7 +128,7 @@ function UserPage() {
         <div className="flex-1 min-w-[150px]">
           <label className="block mb-1 font-semibold">Ngày về:</label>
           <input
-            type="date"
+            type="datetime-local"
             className="border border-gray-400 rounded px-2 py-1 w-full"
             value={driverInfo.ngayVe}
             onChange={(e) => handleDriverInfoChange("ngayVe", e.target.value)}
