@@ -25,7 +25,7 @@ const AdminPage = () => {
 
       // Gửi tham số ngày vào API export
       const response = await axios.get(
-        "https://qllx.onrender.com/api/schedules/export",
+        "http://localhost:4000/api/schedules/export",
         {
           params: { ngay: formattedDate }, // Truyền ngày vào query
           responseType: "blob", // Đảm bảo là nhận blob để tải file

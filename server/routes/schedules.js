@@ -164,6 +164,9 @@ router.get("/export", async (req, res) => {
       const formattedNgayDi =
         s.ngayDi instanceof Date && !isNaN(s.ngayDi)
           ? s.ngayDi.toLocaleString("vi-VN", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
               hour: "2-digit",
               minute: "2-digit",
               hour12: false,
@@ -173,6 +176,9 @@ router.get("/export", async (req, res) => {
       const formattedNgayVe =
         s.ngayVe instanceof Date && !isNaN(s.ngayVe)
           ? s.ngayVe.toLocaleString("vi-VN", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
               hour: "2-digit",
               minute: "2-digit",
               hour12: false,

@@ -31,6 +31,8 @@ function UserPage() {
     rows: [],
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [rows, setRows] = useState([
     { id: Date.now(), values: Array(columns.length).fill("") },
   ]);
@@ -78,6 +80,9 @@ function UserPage() {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return; // tránh gửi nhiều lần
+    setIsSubmitting(true);
+
     const newErrors = {
       tenLaiXe: !driverInfo.tenLaiXe.trim(),
       ngayDi: !driverInfo.ngayDi,
@@ -100,6 +105,7 @@ function UserPage() {
 
     if (hasErrors) {
       alert("Vui lòng điền đầy đủ các trường bắt buộc!");
+      setIsSubmitting(false); // Cho phép bấm lại
       return;
     }
 
@@ -124,6 +130,7 @@ function UserPage() {
     } catch (error) {
       console.error("Có lỗi xảy ra khi gửi dữ liệu:", error);
       alert("Có lỗi xảy ra khi gửi dữ liệu.");
+      setIsSubmitting(false); // Cho phép bấm lại khi lỗi
     }
   };
 
