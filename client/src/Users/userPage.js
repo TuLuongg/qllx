@@ -13,7 +13,7 @@ const columns = [
   "Số điểm",
   "2 chiều & lưu ca (Ghi rõ số lượng hàng trả về)",
   "Ăn",
-  "Tăng ca(Ghi giờ đi-về)",
+  "Tăng ca",
   "Bốc xếp",
   "Vé",
   "Tiền chuyến (2+3+4+5 nếu có)",
@@ -22,6 +22,14 @@ const columns = [
 
 function UserPage() {
   const navigate = useNavigate();
+
+  const [errors, setErrors] = useState({
+    tenLaiXe: false,
+    ngayDi: false,
+    ngayVe: false,
+    tongTienLichTrinh: false,
+    rows: [],
+  });
 
   const [rows, setRows] = useState([
     { id: Date.now(), values: Array(columns.length).fill("") },
@@ -70,11 +78,36 @@ function UserPage() {
   };
 
   const handleSubmit = async () => {
+    const newErrors = {
+      tenLaiXe: !driverInfo.tenLaiXe.trim(),
+      ngayDi: !driverInfo.ngayDi,
+      ngayVe: !driverInfo.ngayVe,
+      tongTienLichTrinh: !tongTienLichTrinh,
+      rows: rows.map((row) => {
+        const requiredIndices = [0, 1, 2, 3, 4, 5, 6, 7]; // Biển số -> 2 chiều
+        return requiredIndices.map((i) => !row.values[i].trim());
+      }),
+    };
+
+    const hasErrors =
+      newErrors.tenLaiXe ||
+      newErrors.ngayDi ||
+      newErrors.ngayVe ||
+      newErrors.tongTienLichTrinh ||
+      newErrors.rows.some((row) => row.includes(true));
+
+    setErrors(newErrors);
+
+    if (hasErrors) {
+      alert("Vui lòng điền đầy đủ các trường bắt buộc!");
+      return;
+    }
+
     try {
       const payload = {
         tenLaiXe: String(driverInfo.tenLaiXe || ""),
-        ngayDi: new Date(driverInfo.ngayDi).toISOString(), // Sửa đổi: Truyền ngày đi
-        ngayVe: new Date(driverInfo.ngayVe).toISOString(), // Sửa đổi: Truyền ngày về
+        ngayDi: new Date(driverInfo.ngayDi).toISOString(),
+        ngayVe: new Date(driverInfo.ngayVe).toISOString(),
         tongTienLichTrinh: String(tongTienLichTrinh || ""),
         rows: rows.map((row, index) => ({
           values: row.values.map((val) => String(val)),
@@ -82,6 +115,7 @@ function UserPage() {
           phuongAn: String(phuongAnList[index] || ""),
         })),
       };
+
       console.log("Dữ liệu gửi đi:", payload);
       await axios.post("https://qllx.onrender.com/api/schedules", payload);
       alert("Dữ liệu đã được gửi lên!");
@@ -105,7 +139,9 @@ function UserPage() {
           <label className="block mb-1 font-semibold">Tên lái xe:</label>
           <input
             type="text"
-            className="border border-gray-400 rounded px-2 py-1 w-full"
+            className={`border rounded px-2 py-1 w-full ${
+              errors.tenLaiXe ? "border-red-500" : "border-gray-400"
+            }`}
             value={driverInfo.tenLaiXe}
             onChange={(e) => handleDriverInfoChange("tenLaiXe", e.target.value)}
           />
@@ -118,7 +154,9 @@ function UserPage() {
           <label className="block mb-1 font-semibold">Ngày đi:</label>
           <input
             type="datetime-local"
-            className="border border-gray-400 rounded px-2 py-1 w-full"
+            className={`border rounded px-2 py-1 w-full ${
+              errors.ngayDi ? "border-red-500" : "border-gray-400"
+            }`}
             value={driverInfo.ngayDi}
             onChange={(e) => handleDriverInfoChange("ngayDi", e.target.value)}
           />
@@ -129,7 +167,9 @@ function UserPage() {
           <label className="block mb-1 font-semibold">Ngày về:</label>
           <input
             type="datetime-local"
-            className="border border-gray-400 rounded px-2 py-1 w-full"
+            className={`border rounded px-2 py-1 w-full ${
+              errors.ngayDi ? "border-red-500" : "border-gray-400"
+            }`}
             value={driverInfo.ngayVe}
             onChange={(e) => handleDriverInfoChange("ngayVe", e.target.value)}
           />
@@ -151,6 +191,8 @@ function UserPage() {
                 return null;
               }
 
+              const hasError = errors.rows?.[index]?.[i];
+
               return (
                 <div key={i} className="flex items-center gap-2 w-full">
                   <label className="text-sm font-medium w-[160px] shrink-0">
@@ -162,7 +204,9 @@ function UserPage() {
                     onChange={(e) =>
                       handleInputChange(row.id, i, e.target.value)
                     }
-                    className="border border-gray-300 rounded px-2 py-1 w-full"
+                    className={`border rounded px-2 py-1 w-full ${
+                      hasError ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
                 </div>
               );
@@ -263,10 +307,11 @@ function UserPage() {
         </p>
         <input
           type="number"
-          className="border border-gray-400 rounded px-2 py-1 w-full"
+          className={`border rounded px-2 py-1 w-full ${
+            errors.tongTienLichTrinh ? "border-red-500" : "border-gray-400"
+          }`}
           value={tongTienLichTrinh}
           onChange={(e) => setTongTienLichTrinh(e.target.value)}
-          placeholder="Nhập tổng tiền"
         />
       </div>
 

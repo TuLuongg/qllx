@@ -30,7 +30,7 @@ function FinalPage() {
     "Số điểm",
     "2 chiều & lưu ca (Ghi rõ số lượng hàng trả về)",
     "Ăn",
-    "Tăng ca(Ghi giờ đi-về)",
+    "Tăng ca",
     "Bốc xếp",
     "Vé",
     "Tiền chuyến (2+3+4+5 nếu có)",

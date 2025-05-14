@@ -143,7 +143,7 @@ router.get("/export", async (req, res) => {
       "Biển số xe": "Biển số xe",
       "Tên khách hàng": "Tên khách hàng",
       "Giấy tờ": "Giấy tờ",
-      "Nơi đi": "Nơi đến",
+      "Nơi đi": "Nơi đi",
       "Nơi đến": "Nơi đến",
       "Trọng lượng hàng": "Trọng lượng hàng",
       "Số điểm": "Số điểm",
@@ -163,12 +163,20 @@ router.get("/export", async (req, res) => {
     schedules.forEach((s) => {
       const formattedNgayDi =
         s.ngayDi instanceof Date && !isNaN(s.ngayDi)
-          ? s.ngayDi.toLocaleDateString("vi-VN")
+          ? s.ngayDi.toLocaleString("vi-VN", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
           : "";
 
       const formattedNgayVe =
         s.ngayVe instanceof Date && !isNaN(s.ngayVe)
-          ? s.ngayVe.toLocaleDateString("vi-VN")
+          ? s.ngayVe.toLocaleString("vi-VN", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false,
+            })
           : "";
 
       // Thêm tiêu đề
