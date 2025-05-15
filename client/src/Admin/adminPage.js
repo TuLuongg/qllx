@@ -57,7 +57,7 @@ const AdminPage = () => {
     try {
       const formattedDate = new Date(selectedDate).toISOString().split("T")[0]; // Chuyển ngày sang định dạng YYYY-MM-DD
       const response = await axios.get(
-        `https://qllx.onrender.com/api/schedules?ngay=${formattedDate}`
+        `http://localhost:4000/api/schedules?ngay=${formattedDate}`
       );
       setFilteredData(response.data);
       console.log(response);
@@ -155,7 +155,16 @@ const AdminPage = () => {
               <tr key={item._id}>
                 <td className="border p-1">{item.tenLaiXe}</td>
                 <td className="border p-1">
-                  {new Date(item.ngayDi).toLocaleDateString("vi-VN")}
+                  {(() => {
+                    const date = new Date(item.ngayDi);
+                    const day = String(date.getUTCDate()).padStart(2, "0");
+                    const month = String(date.getUTCMonth() + 1).padStart(
+                      2,
+                      "0"
+                    );
+                    const year = date.getUTCFullYear();
+                    return `${day}/${month}/${year}`;
+                  })()}
                 </td>
                 <td className="border p-1">{item.tongTienLichTrinh}</td>
               </tr>
