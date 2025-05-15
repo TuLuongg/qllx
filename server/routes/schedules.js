@@ -51,27 +51,23 @@ router.post("/", async (req, res) => {
   }
 });
 
-//Lấy lịch trình theo ngày
+//Lấy và lọc lịch trình theo ngày
 router.get("/", async (req, res) => {
   try {
     let query = {};
 
     if (req.query.ngay) {
-      const ngayInput = req.query.ngay; // Ngày bạn nhận từ frontend
+      const ngayInput = req.query.ngay; // VD: "2025-05-13"
       console.log("Ngày nhận vào:", ngayInput);
 
-      // Chuyển ngày nhận vào thành Date
-      const start = new Date(ngayInput);
-      start.setHours(0, 0, 0, 0); // Bắt đầu ngày từ 00:00:00
+      // Tạo start và end theo đúng UTC để tránh lệch múi giờ
+      const start = new Date(`${ngayInput}T00:00:00.000Z`);
+      const end = new Date(`${ngayInput}T23:59:59.999Z`);
 
-      const end = new Date(ngayInput);
-      end.setHours(23, 59, 59, 999); // Kết thúc ngày vào 23:59:59
+      console.log("Start UTC:", start.toISOString());
+      console.log("End UTC:", end.toISOString());
 
-      console.log("Ngày bắt đầu:", start);
-      console.log("Ngày kết thúc:", end);
-
-      // Lọc lịch trình theo ngày đi (ngayDi) trong khoảng từ 00:00:00 đến 23:59:59
-      query.ngayDi = { $gte: start, $lt: end };
+      query.ngayDi = { $gte: start, $lte: end };
     }
 
     const schedules = await Schedule.find(query);
