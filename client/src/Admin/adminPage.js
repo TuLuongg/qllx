@@ -57,7 +57,7 @@ const AdminPage = () => {
     try {
       const formattedDate = new Date(selectedDate).toISOString().split("T")[0]; // Chuyển ngày sang định dạng YYYY-MM-DD
       const response = await axios.get(
-        `http://localhost:4000/api/schedules?ngay=${formattedDate}`
+        `https://qllx.onrender.com/api/schedules?ngay=${formattedDate}`
       );
       setFilteredData(response.data);
       console.log(response);

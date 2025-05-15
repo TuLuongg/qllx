@@ -115,26 +115,32 @@ router.get("/export", async (req, res) => {
   try {
     let query = {};
 
-    // Nếu có tham số ngày thì lọc theo ngày đi
     if (req.query.ngay) {
       const ngayInput = req.query.ngay;
       const start = new Date(ngayInput);
       start.setHours(0, 0, 0, 0);
       const end = new Date(ngayInput);
       end.setHours(23, 59, 59, 999);
-      query.ngayDi = { $gte: start, $lt: end }; // Lọc theo ngày đi
+      query.ngayDi = { $gte: start, $lt: end };
     }
 
-    // Lọc dữ liệu theo query
     const schedules = await Schedule.find(query);
 
     if (!schedules || schedules.length === 0) {
       return res.status(404).json({ error: "Không có lịch trình để xuất" });
     }
 
-    console.log("Dữ liệu đã lọc theo ngày:", schedules);
+    // Hàm định dạng UTC ngày giờ thành chuỗi DD/MM/YYYY HH:mm
+    const formatUTCDateTime = (date) => {
+      if (!(date instanceof Date) || isNaN(date)) return "";
+      const day = String(date.getUTCDate()).padStart(2, "0");
+      const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+      const year = date.getUTCFullYear();
+      const hour = String(date.getUTCHours()).padStart(2, "0");
+      const minute = String(date.getUTCMinutes()).padStart(2, "0");
+      return `${day}/${month}/${year} ${hour}:${minute}`;
+    };
 
-    // Tạo mảng để chứa dữ liệu xuất Excel
     const data = [];
     const header = {
       "Ngày đi": "Ngày đi",
@@ -159,36 +165,12 @@ router.get("/export", async (req, res) => {
       "Phương án": "Phương án",
     };
 
-    // Chạy qua tất cả các lịch trình đã lọc và tạo dữ liệu xuất
     schedules.forEach((s) => {
-      const formattedNgayDi =
-        s.ngayDi instanceof Date && !isNaN(s.ngayDi)
-          ? s.ngayDi.toLocaleString("vi-VN", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })
-          : "";
+      const formattedNgayDi = formatUTCDateTime(s.ngayDi);
+      const formattedNgayVe = formatUTCDateTime(s.ngayVe);
 
-      const formattedNgayVe =
-        s.ngayVe instanceof Date && !isNaN(s.ngayVe)
-          ? s.ngayVe.toLocaleString("vi-VN", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false,
-            })
-          : "";
-
-      // Thêm tiêu đề
       data.push(header);
 
-      // Thêm từng dòng
       s.rows.forEach((row) => {
         data.push({
           "Ngày đi": formattedNgayDi,
@@ -219,7 +201,6 @@ router.get("/export", async (req, res) => {
         });
       });
 
-      // Dòng tổng kết
       data.push({
         "Ngày đi": formattedNgayDi,
         "Ngày về": formattedNgayVe,
@@ -228,21 +209,15 @@ router.get("/export", async (req, res) => {
         "Tổng tiền lịch trình": s.tongTienLichTrinh || "",
       });
 
-      // Dòng trắng
       data.push({});
     });
 
-    // Tạo Excel
     const worksheet = XLSX.utils.json_to_sheet(data, { skipHeader: true });
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Lịch Trình");
 
-    // Lấy ngày từ query để làm tên file
-    console.log("Ngày lọc từ frontend:", req.query.ngay);
     const ngayParam = req.query.ngay || new Date().toISOString().slice(0, 10);
-    const safeNgayString = ngayParam.replace(/-/g, "_"); // ← fix chính ở đây
-
-    console.log(safeNgayString);
+    const safeNgayString = ngayParam.replace(/-/g, "_");
 
     const fileName = `lichtrinh_${safeNgayString}.xlsx`;
     const filePath = path.join(__dirname, "../", fileName);
