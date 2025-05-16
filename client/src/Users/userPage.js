@@ -112,8 +112,8 @@ function UserPage() {
     try {
       const payload = {
         tenLaiXe: String(driverInfo.tenLaiXe || ""),
-        ngayDi: new Date(driverInfo.ngayDi),
-        ngayVe: new Date(driverInfo.ngayVe),
+        ngayDi: driverInfo.ngayDi,
+        ngayVe: driverInfo.ngayVe,
         tongTienLichTrinh: String(tongTienLichTrinh || ""),
         rows: rows.map((row, index) => ({
           values: row.values.map((val) => String(val)),
