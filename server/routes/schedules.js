@@ -35,10 +35,18 @@ router.post("/", async (req, res) => {
 
     const processedRows = rows.map(mapFieldsToRow);
 
+    const parseLocalDateTime = (str) => {
+      const [datePart, timePart] = str.split("T");
+      const [year, month, day] = datePart.split("-").map(Number);
+      const [hour, minute] = timePart.split(":").map(Number);
+      return new Date(year, month - 1, day, hour, minute);
+    };
+
+    // Trong router.post:
     const schedule = new Schedule({
       tenLaiXe: String(tenLaiXe || ""),
-      ngayDi: new Date(ngayDi),
-      ngayVe: new Date(ngayVe),
+      ngayDi: parseLocalDateTime(ngayDi),
+      ngayVe: parseLocalDateTime(ngayVe),
       tongTienLichTrinh: String(tongTienLichTrinh || ""),
       rows: processedRows,
     });
