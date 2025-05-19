@@ -80,7 +80,6 @@ function UserPage() {
   };
 
   const handleSubmit = async () => {
-    if (isSubmitting) return; // tránh gửi nhiều lần
     setIsSubmitting(true);
 
     const newErrors = {
@@ -146,6 +145,7 @@ function UserPage() {
           <label className="block mb-1 font-semibold">Tên lái xe:</label>
           <input
             type="text"
+            placeholder="Bắt buộc điền"
             className={`border rounded px-2 py-1 w-full ${
               errors.tenLaiXe ? "border-red-500" : "border-gray-400"
             }`}
@@ -207,6 +207,11 @@ function UserPage() {
                   </label>
                   <input
                     type="text"
+                    placeholder={
+                      [0, 1, 2, 3, 4, 5, 6, 7].includes(i)
+                        ? "Bắt buộc điền"
+                        : ""
+                    }
                     value={row.values[i]}
                     onChange={(e) =>
                       handleInputChange(row.id, i, e.target.value)
@@ -238,41 +243,43 @@ function UserPage() {
             </div>
 
             {/* Phương án chỉ xuất hiện nếu có nhập "Lái xe thu khách" */}
-            {laiXeThuKhachList[index] && (
-              <div>
-                <label className="block font-medium">Phương án:</label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name={`phuongAn-${index}`}
-                    value="daChuyenKhoan"
-                    checked={phuongAnList[index] === "daChuyenKhoan"}
-                    onChange={(e) => {
-                      const updated = [...phuongAnList];
-                      updated[index] = e.target.value;
-                      setPhuongAnList(updated);
-                    }}
-                    className="mr-2"
-                  />
-                  Đã chuyển khoản cho sếp
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name={`phuongAn-${index}`}
-                    value="truVaoTongLichTrinh"
-                    checked={phuongAnList[index] === "truVaoTongLichTrinh"}
-                    onChange={(e) => {
-                      const updated = [...phuongAnList];
-                      updated[index] = e.target.value;
-                      setPhuongAnList(updated);
-                    }}
-                    className="mr-2"
-                  />
-                  Trừ thanh toán lịch trình
-                </label>
-              </div>
-            )}
+            {laiXeThuKhachList[index] &&
+              laiXeThuKhachList[index] !== "0" &&
+              Number(laiXeThuKhachList[index]) !== 0 && (
+                <div>
+                  <label className="block font-medium">Phương án:</label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name={`phuongAn-${index}`}
+                      value="daChuyenKhoan"
+                      checked={phuongAnList[index] === "daChuyenKhoan"}
+                      onChange={(e) => {
+                        const updated = [...phuongAnList];
+                        updated[index] = e.target.value;
+                        setPhuongAnList(updated);
+                      }}
+                      className="mr-2"
+                    />
+                    Đã chuyển khoản cho sếp
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name={`phuongAn-${index}`}
+                      value="truVaoTongLichTrinh"
+                      checked={phuongAnList[index] === "truVaoTongLichTrinh"}
+                      onChange={(e) => {
+                        const updated = [...phuongAnList];
+                        updated[index] = e.target.value;
+                        setPhuongAnList(updated);
+                      }}
+                      className="mr-2"
+                    />
+                    Trừ thanh toán lịch trình
+                  </label>
+                </div>
+              )}
           </div>
         </div>
       ))}
@@ -314,6 +321,7 @@ function UserPage() {
         </p>
         <input
           type="number"
+          placeholder="Bắt buộc điền"
           className={`border rounded px-2 py-1 w-full ${
             errors.tongTienLichTrinh ? "border-red-500" : "border-gray-400"
           }`}
@@ -326,9 +334,12 @@ function UserPage() {
       <div className="mt-6">
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow"
+          disabled={isSubmitting}
+          className={`bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow ${
+            isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          Gửi lịch trình
+          {isSubmitting ? "Đang gửi..." : "Gửi lịch trình"}
         </button>
       </div>
     </div>
