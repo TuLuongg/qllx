@@ -301,11 +301,11 @@ function UserPage() {
       </div>
 
       <div className="mt-5">
-        <p className="text-red-600 font-semibold text-sm">
+        <p className="text-gray-700 font-semibold text-sm italic">
           Nếu chuyển khoản thì chuyển vào STK sau: 1212 3656 1750 11 -
           Techcombank - Đoàn Văn Thiệp
         </p>
-        <p className="text-red-600 font-semibold text-sm">
+        <p className="text-gray-700 font-semibold text-sm italic">
           Hoặc quét mã QR sau:
         </p>
         <img src={maQR} alt="Ảnh trong src" className="w-40 h-auto ml-10" />
@@ -316,7 +316,7 @@ function UserPage() {
         <label className="block mb-1 font-semibold">
           Tổng tiền lịch trình:
         </label>
-        <p className="text-red-600 font-semibold text-sm">
+        <p className="text-gray-700 italic font-semibold text-sm">
           (Lưu ý: chỉ ghi số, ví dụ 100.000 thì chỉ ghi 100)
         </p>
         <input
